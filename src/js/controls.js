@@ -1778,8 +1778,8 @@ const controls = {
   },
 
   // Add markers
-  setMarkers() {
-    if (!this.duration || this.elements.markers) return;
+  setMarkers(forceReset = false) {
+    if (!this.duration || (!forceReset && this.elements.markers)) return;
 
     // Get valid points
     const points = this.config.markers?.points?.filter(({ time }) => time > 0 && time < this.duration);
@@ -1791,6 +1791,9 @@ const controls = {
     const tipVisible = `${this.config.classNames.tooltip}--visible`;
     const toggleTip = (show) => toggleClass(tipElement, tipVisible, show);
 
+    // Before we inject markers, remove any existing ones
+    this.elements.progress.querySelectorAll(`.${this.config.classNames.marker}`).forEach((element) => element.remove());
+
     // Inject markers to progress container
     points.forEach((point) => {
       const markerElement = createElement(
@@ -1800,6 +1803,7 @@ const controls = {
         },
         '',
       );
+      markerElement.dataset.markerType = point.type ?? 'marker';
 
       const left = `${(point.time / this.duration) * 100}%`;
 
